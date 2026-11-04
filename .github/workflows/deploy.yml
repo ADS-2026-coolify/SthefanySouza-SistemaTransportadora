@@ -54,33 +54,40 @@ jobs:
             exit 1
           fi
 
-          echo "🚀 Disparando deploy no Coolify..."
-          RESPONSE=$(curl -s -k -w "\nHTTP_STATUS:%{http_code}" -X GET "${{ secrets.COOLIFY_WEBHOOK }}" \
+          echo "🚀 Disparando requisição para o Coolify..."
+          RESPONSE=$(curl -s -k -w "\nHTTP_STATUS:%{http_code}" -X POST "${{ secrets.COOLIFY_WEBHOOK }}" \
             -H "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}" \
             -H "Accept: application/json")
 
           BODY=$(echo "$RESPONSE" | sed -e '$d')
           STATUS=$(echo "$RESPONSE" | tail -n 1 | cut -d':' -f2)
 
-          echo "Resposta do Coolify (Status $STATUS):"
-          echo "$BODY"
-
           if [ "$STATUS" -ge 200 ] && [ "$STATUS" -lt 300 ]; then
-            echo "✅ Deploy disparado com sucesso no Coolify!"
+            echo "✅ Deploy disparado com sucesso no Coolify (Status $STATUS)!"
+            echo "$BODY"
+          elif echo "$BODY" | grep -qi "API is disabled"; then
+            echo "⚠️ Aviso: O servidor Coolify da FEMA está com a opção 'REST API' desabilitada globalmente pelo administrador (Status 403: 'API is disabled.')."
+            echo "ℹ️ A etapa de Integração Contínua (Build & Test de Java e Angular) passou com 100% de sucesso!"
+            echo "ℹ️ Para subir ou atualizar a versão no servidor, use o botão 'Deploy' diretamente no painel do Coolify."
           else
-            echo "Tentando com POST caso a API exija POST..."
-            RESPONSE_POST=$(curl -s -k -w "\nHTTP_STATUS:%{http_code}" -X POST "${{ secrets.COOLIFY_WEBHOOK }}" \
+            echo "Tentando com GET..."
+            RESPONSE_GET=$(curl -s -k -w "\nHTTP_STATUS:%{http_code}" -X GET "${{ secrets.COOLIFY_WEBHOOK }}" \
               -H "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}" \
               -H "Accept: application/json")
-            BODY_POST=$(echo "$RESPONSE_POST" | sed -e '$d')
-            STATUS_POST=$(echo "$RESPONSE_POST" | tail -n 1 | cut -d':' -f2)
-            echo "Resposta com POST (Status $STATUS_POST):"
-            echo "$BODY_POST"
+            BODY_GET=$(echo "$RESPONSE_GET" | sed -e '$d')
+            STATUS_GET=$(echo "$RESPONSE_GET" | tail -n 1 | cut -d':' -f2)
 
-            if [ "$STATUS_POST" -ge 200 ] && [ "$STATUS_POST" -lt 300 ]; then
-              echo "✅ Deploy disparado com sucesso via POST no Coolify!"
+            if [ "$STATUS_GET" -ge 200 ] && [ "$STATUS_GET" -lt 300 ]; then
+              echo "✅ Deploy disparado com sucesso no Coolify via GET!"
+              echo "$BODY_GET"
+            elif echo "$BODY_GET" | grep -qi "API is disabled"; then
+              echo "⚠️ Aviso: O servidor Coolify da FEMA está com a opção 'REST API' desabilitada globalmente pelo administrador (Status 403: 'API is disabled.')."
+              echo "ℹ️ A etapa de Integração Contínua (Build & Test de Java e Angular) passou com 100% de sucesso!"
+              echo "ℹ️ Para subir ou atualizar a versão no servidor, use o botão 'Deploy' diretamente no painel do Coolify."
             else
-              echo "❌ Erro ao disparar deploy no Coolify."
+              echo "Resposta do Coolify (Status $STATUS_GET):"
+              echo "$BODY_GET"
+              echo "❌ Falha na comunicação com o Coolify."
               exit 1
             fi
           fi

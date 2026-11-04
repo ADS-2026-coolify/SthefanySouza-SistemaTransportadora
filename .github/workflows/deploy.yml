@@ -54,12 +54,34 @@ jobs:
             exit 1
           fi
 
-          echo "🚀 Disparando webhook no Coolify..."
-          if [ -n "${{ secrets.COOLIFY_TOKEN }}" ]; then
-            curl -f -X GET "${{ secrets.COOLIFY_WEBHOOK }}" \
-              -H "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
+          echo "🚀 Disparando deploy no Coolify..."
+          RESPONSE=$(curl -s -k -w "\nHTTP_STATUS:%{http_code}" -X GET "${{ secrets.COOLIFY_WEBHOOK }}" \
+            -H "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}" \
+            -H "Accept: application/json")
+
+          BODY=$(echo "$RESPONSE" | sed -e '$d')
+          STATUS=$(echo "$RESPONSE" | tail -n 1 | cut -d':' -f2)
+
+          echo "Resposta do Coolify (Status $STATUS):"
+          echo "$BODY"
+
+          if [ "$STATUS" -ge 200 ] && [ "$STATUS" -lt 300 ]; then
+            echo "✅ Deploy disparado com sucesso no Coolify!"
           else
-            curl -f -X GET "${{ secrets.COOLIFY_WEBHOOK }}"
+            echo "Tentando com POST caso a API exija POST..."
+            RESPONSE_POST=$(curl -s -k -w "\nHTTP_STATUS:%{http_code}" -X POST "${{ secrets.COOLIFY_WEBHOOK }}" \
+              -H "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}" \
+              -H "Accept: application/json")
+            BODY_POST=$(echo "$RESPONSE_POST" | sed -e '$d')
+            STATUS_POST=$(echo "$RESPONSE_POST" | tail -n 1 | cut -d':' -f2)
+            echo "Resposta com POST (Status $STATUS_POST):"
+            echo "$BODY_POST"
+
+            if [ "$STATUS_POST" -ge 200 ] && [ "$STATUS_POST" -lt 300 ]; then
+              echo "✅ Deploy disparado com sucesso via POST no Coolify!"
+            else
+              echo "❌ Erro ao disparar deploy no Coolify."
+              exit 1
+            fi
           fi
-          echo "✅ Deploy disparado com sucesso no Coolify!"
 

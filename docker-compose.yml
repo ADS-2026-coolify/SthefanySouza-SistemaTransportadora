@@ -44,6 +44,8 @@ services:
     restart: always
     depends_on:
       - backend
+    ports:
+      - "3486:80"
     expose:
       - "80"
     networks:

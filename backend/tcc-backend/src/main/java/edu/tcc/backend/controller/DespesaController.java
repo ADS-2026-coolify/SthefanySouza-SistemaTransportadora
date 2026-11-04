@@ -1,0 +1,69 @@
+package edu.tcc.backend.controller;
+
+import edu.tcc.backend.dto.despesa.DespesaRequest;
+import edu.tcc.backend.dto.despesa.DespesaResponse;
+import edu.tcc.backend.model.despesa.CategoriaDespesa;
+import edu.tcc.backend.service.DespesaService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@CrossOrigin(origins = "*")
+@RequestMapping("/api/despesas")
+@RequiredArgsConstructor
+public class DespesaController {
+
+    private final DespesaService service;
+
+    @PostMapping
+    public ResponseEntity<DespesaResponse> registrarDespesa(@Valid @RequestBody DespesaRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.registrarDespesa(request));
+    }
+
+    @GetMapping("/viagem/{viagemId}")
+    public ResponseEntity<List<DespesaResponse>> findByViagemId(@PathVariable Long viagemId) {
+        return ResponseEntity.ok(service.listarPorViagem(viagemId));
+    }
+
+    @GetMapping("/motorista/{motoristaId}")
+    public ResponseEntity<List<DespesaResponse>> listarPorMotorista(@PathVariable Long motoristaId) {
+        return ResponseEntity.ok(service.listarPorMotorista(motoristaId));
+    }
+
+    @GetMapping("/categoria/{categoriaDespesa}")
+    public ResponseEntity<List<DespesaResponse>>  findByCategoria (@PathVariable CategoriaDespesa categoriaDespesa) {
+        return ResponseEntity.ok(service.buscarPorCategoria(categoriaDespesa));
+    }
+
+    @GetMapping("/viagem/{viagemId}/categoria/{categoriaDespesa}")
+    public ResponseEntity<List<DespesaResponse>> findByViagemIdAndCategoria (@PathVariable Long viagemId,
+                                                                             @PathVariable CategoriaDespesa categoriaDespesa) {
+        return ResponseEntity.ok(service.buscarPorViagemIdECategoria(viagemId, categoriaDespesa));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<DespesaResponse>> listarTodos() {
+        return ResponseEntity.ok(service.listarTodos());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<DespesaResponse> buscarPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(service.buscarPorId(id));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<DespesaResponse> atualizar(@PathVariable Long id, @Valid @RequestBody DespesaRequest request) {
+        return ResponseEntity.ok(service.atualizar(id, request));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> excluir(@PathVariable Long id) {
+        service.excluir(id);
+        return ResponseEntity.noContent().build();
+    }
+}

@@ -1,0 +1,53 @@
+package edu.tcc.backend.controller;
+
+import edu.tcc.backend.dto.veiculo.VeiculoRequest;
+import edu.tcc.backend.dto.veiculo.VeiculoResponse;
+import edu.tcc.backend.service.VeiculoService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Optional;
+
+@RestController
+@CrossOrigin(origins = "*")
+@RequestMapping("/api/veiculos")
+@RequiredArgsConstructor
+public class VeiculoController {
+
+    private final VeiculoService service;
+
+    @PostMapping
+    public ResponseEntity<VeiculoResponse> cadastrar(@Valid @RequestBody VeiculoRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.cadastrar(request));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<VeiculoResponse>> listarTodos() {
+        return ResponseEntity.ok(service.listarTodos());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<VeiculoResponse> buscarPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(service.buscarPorId(id));
+    }
+
+    @GetMapping("/placa/{placa}")
+    public ResponseEntity<Optional<VeiculoResponse>> findByPlaca (@PathVariable String placa) {
+        return ResponseEntity.ok(service.buscarPorPlaca(placa));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<VeiculoResponse> atualizar(@PathVariable Long id, @Valid @RequestBody VeiculoRequest request) {
+        return ResponseEntity.ok(service.atualizar(id, request));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> excluir(@PathVariable Long id) {
+        service.excluir(id);
+        return ResponseEntity.noContent().build();
+    }
+}

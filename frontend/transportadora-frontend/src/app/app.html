@@ -1,0 +1,79 @@
+<div class="min-h-screen bg-gray-100 flex flex-col font-sans">
+  
+  @if (!isLogin) {
+    <nav class="bg-gray-900 border-b border-gray-800 shadow-md relative z-50">
+      <div class="w-full px-4 sm:px-8">
+        <div class="flex items-center justify-between h-20">
+          
+          <div class="flex-shrink-0 flex items-center">
+            <img src="logocaminhaolado.png" alt="Silva & Souza" class="h-16 w-auto object-contain">
+          </div>
+
+          <div class="flex md:hidden">
+            <button (click)="menuAberto = !menuAberto" class="text-gray-300 hover:text-white focus:outline-none p-2">
+              <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                @if (!menuAberto) {
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                } @else {
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                }
+              </svg>
+            </button>
+          </div>
+
+          <div class="hidden md:flex space-x-8 items-center">
+            <a routerLink="/dashboard" routerLinkActive="text-yellow-500 font-bold" class="text-gray-300 hover:text-white text-sm transition-colors cursor-pointer">Início</a>
+            
+            @if (authService.getPerfil() === 'GESTOR') {
+              <a routerLink="/motoristas" routerLinkActive="text-yellow-500 font-bold" class="text-gray-300 hover:text-white text-sm transition-colors cursor-pointer">Motoristas</a>
+              <a routerLink="/veiculos" routerLinkActive="text-yellow-500 font-bold" class="text-gray-300 hover:text-white text-sm transition-colors cursor-pointer">Veículos</a>
+              <a routerLink="/gestores" routerLinkActive="text-yellow-500 font-bold" class="text-gray-300 hover:text-white text-sm transition-colors cursor-pointer">Gestores</a>
+              <a routerLink="/pagamentos" routerLinkActive="text-yellow-500 font-bold" class="text-gray-300 hover:text-white text-sm transition-colors cursor-pointer">Pagamentos</a>
+            }
+
+            <!-- despesas e viagens aparecem tanto pro motorista como pro gestor -->
+            <a routerLink="/despesas" routerLinkActive="text-yellow-500 font-bold" class="text-gray-300 hover:text-white text-sm transition-colors cursor-pointer">Despesas</a>
+            <a routerLink="/viagens" routerLinkActive="text-yellow-500 font-bold" class="text-gray-300 hover:text-white text-sm transition-colors cursor-pointer">Viagens</a>
+
+            <button (click)="sair()" class="text-red-400 hover:text-red-300 font-bold text-sm transition-colors ml-4 border border-red-500/30 px-3 py-1.5 rounded cursor-pointer">Sair</button>
+          </div>
+          
+        </div>
+      </div>
+
+      @if (menuAberto) {
+        <div class="md:hidden bg-gray-800 border-t border-gray-700 shadow-xl absolute w-full left-0">
+          <div class="px-4 pt-2 pb-4 flex flex-col space-y-2">
+            
+            <a routerLink="/dashboard" (click)="menuAberto = false" routerLinkActive="text-yellow-500 font-bold" class="text-gray-300 hover:text-white block px-3 py-3 rounded-md text-base transition-colors">
+              Início
+            </a>
+
+            <!-- aparece apenas para o gestor no cllr -->
+            @if (authService.getPerfil() === 'GESTOR') {
+              <a routerLink="/motoristas" (click)="menuAberto = false" routerLinkActive="bg-gray-700 text-yellow-500 font-bold" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-3 rounded-md text-base transition-colors">Motoristas</a>
+              <a routerLink="/veiculos" (click)="menuAberto = false" routerLinkActive="bg-gray-700 text-yellow-500 font-bold" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-3 rounded-md text-base transition-colors">Veículos</a>
+              <a routerLink="/gestores" (click)="menuAberto = false" routerLinkActive="bg-gray-700 text-yellow-500 font-bold" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-3 rounded-md text-base transition-colors">Gestores</a>
+              <a routerLink="/pagamentos" (click)="menuAberto = false" routerLinkActive="bg-gray-700 text-yellow-500 font-bold" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-3 rounded-md text-base transition-colors">Pagamentos</a>
+            }
+
+            <!-- aparece tanto pro gestor como pro motorista no cllr -->
+            <a routerLink="/despesas" (click)="menuAberto = false" routerLinkActive="bg-gray-700 text-yellow-500 font-bold" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-3 rounded-md text-base transition-colors">Despesas</a>
+            <a routerLink="/viagens" (click)="menuAberto = false" routerLinkActive="bg-gray-700 text-yellow-500 font-bold" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-3 rounded-md text-base transition-colors">Viagens</a>
+
+            <!-- botao de sair no cllr -->
+            <button (click)="sair(); menuAberto = false" class="text-left text-red-400 hover:bg-gray-700 hover:text-red-300 font-bold block px-3 py-3 rounded-md text-base transition-colors w-full cursor-pointer">
+              Sair
+            </button>
+
+          </div>
+        </div>
+      }
+    </nav>
+  } 
+
+  <main class="flex-grow flex flex-col relative">
+    <router-outlet></router-outlet>
+  </main>
+
+</div>

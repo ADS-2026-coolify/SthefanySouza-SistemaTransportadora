@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   build:
@@ -61,3 +62,4 @@ jobs:
             curl -f -X GET "${{ secrets.COOLIFY_WEBHOOK }}"
           fi
           echo "✅ Deploy disparado com sucesso no Coolify!"
+
